@@ -14,54 +14,21 @@ struct FeedView: View {
     }
 
     var body: some View {
-        List {
-            ForEach(vm.recipes) { recipe in
-                NavigationLink {
-                    RecipeDetailView(recipe: recipe)
-                } label: {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 12) {
-                            avatarView(for: recipe)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(recipe.title)
-                                    .font(.headline)
-                                Text(authorName(for: recipe))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        if let desc = recipe.description, !desc.isEmpty {
-                            Text(desc)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .lineLimit(3)
-                        }
-
-                        HStack {
-                            Button {
-                                Task { await vm.toggleLike(for: recipe.id) }
-                            } label: {
-                                Label(
-                                    vm.isLiked(recipe.id) ? "Liked" : "Like",
-                                    systemImage: vm.isLiked(recipe.id) ? "heart.fill" : "heart"
-                                )
-                                .labelStyle(.titleAndIcon)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(vm.isLiked(recipe.id) ? .pink : .blue)
-                            .disabled(vm.likeInProgress.contains(recipe.id))
-
-                            Spacer()
-                            Text(formattedDate(for: recipe))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+        ScrollView {
+            LazyVStack(spacing: 16, pinnedViews: []) {
+                ForEach(vm.recipes) { recipe in
+                    NavigationLink {
+                        RecipeDetailView(recipe: recipe)
+                    } label: {
+                        cardView(for: recipe)
+                            .padding(.horizontal, 16)
                     }
-                    .padding(.vertical, 6)
                 }
+                .padding(.top, 8)
+                .padding(.bottom, 12)
             }
         }
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .overlay {
             if vm.isLoading {
                 ProgressView()
@@ -117,6 +84,86 @@ struct FeedView: View {
         }
     }
 
+    @ViewBuilder
+    private func cardView(for recipe: Recipe) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Image banner
+            if let urlString = recipe.image_url, let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.gray.opacity(0.08))
+                                .frame(height: 200)
+                            ProgressView()
+                        }
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 200)
+                            .clipped()
+                            .cornerRadius(16)
+                    case .failure:
+                        placeholderImage
+                    @unknown default:
+                        placeholderImage
+                    }
+                }
+            } else {
+                placeholderImage
+            }
+
+            HStack(alignment: .top, spacing: 12) {
+                avatarView(for: recipe)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(recipe.title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(authorName(for: recipe))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Text(formattedDate(for: recipe))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+
+            if let desc = recipe.description, !desc.isEmpty {
+                Text(desc)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
+            }
+
+            HStack {
+                Button {
+                    Task { await vm.toggleLike(for: recipe.id) }
+                } label: {
+                    Label(
+                        vm.isLiked(recipe.id) ? "Liked" : "Like",
+                        systemImage: vm.isLiked(recipe.id) ? "heart.fill" : "heart"
+                    )
+                    .labelStyle(.titleAndIcon)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(vm.isLiked(recipe.id) ? .pink : .blue)
+                .disabled(vm.likeInProgress.contains(recipe.id))
+
+                Spacer()
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
+        )
+    }
+
     private func formattedDate(for recipe: Recipe) -> String {
         if let date = recipe.createdDate {
             return date.formatted(.dateTime.month().day().hour().minute())
@@ -148,6 +195,17 @@ struct FeedView: View {
             .overlay(
                 Text(text ?? "👨‍🍳")
                     .font(.subheadline)
+            )
+    }
+
+    private var placeholderImage: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color.gray.opacity(0.08))
+            .frame(height: 200)
+            .overlay(
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
             )
     }
 }
