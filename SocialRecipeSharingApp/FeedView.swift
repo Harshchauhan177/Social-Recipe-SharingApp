@@ -106,6 +106,17 @@ struct FeedView: View {
                             .frame(height: 200)
                             .clipped()
                             .cornerRadius(16)
+                            .overlay(alignment: .topTrailing) {
+                                if let name = recipe.users?.name, !name.isEmpty {
+                                    Text(name)
+                                        .font(.caption2)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(.thinMaterial)
+                                        .clipShape(Capsule())
+                                        .padding(8)
+                                }
+                            }
                     case .failure:
                         placeholderImage
                     @unknown default:
@@ -144,7 +155,7 @@ struct FeedView: View {
                     Task { await vm.toggleLike(for: recipe.id) }
                 } label: {
                     Label(
-                        vm.isLiked(recipe.id) ? "Liked" : "Like",
+                        "\(recipe.likeCount)",
                         systemImage: vm.isLiked(recipe.id) ? "heart.fill" : "heart"
                     )
                     .labelStyle(.titleAndIcon)

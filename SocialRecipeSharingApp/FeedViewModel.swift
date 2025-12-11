@@ -35,7 +35,8 @@ final class FeedViewModel: ObservableObject {
                         id,
                         name,
                         avatar_url
-                    )
+                    ),
+                    likes:likes(count)
                     """
                 )
                 .order("created_at", ascending: false)
@@ -88,6 +89,7 @@ final class FeedViewModel: ObservableObject {
                 .insert(payload)
                 .execute()
             likedRecipeIds.insert(recipeId)
+            bumpLikeCount(for: recipeId, delta: 1)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -105,8 +107,29 @@ final class FeedViewModel: ObservableObject {
                 .eq("user_id", value: userId.uuidString)
                 .execute()
             likedRecipeIds.remove(recipeId)
+            bumpLikeCount(for: recipeId, delta: -1)
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func bumpLikeCount(for recipeId: Int, delta: Int) {
+        guard delta != 0 else { return }
+        for index in recipes.indices where recipes[index].id == recipeId {
+            let current = recipes[index].likeCount
+            let newCount = max(0, current + delta)
+            // rebuild likes array to reflect new count
+            let updatedLikes = [LikeCountResult(count: newCount)]
+            recipes[index] = Recipe(
+                id: recipes[index].id,
+                user_id: recipes[index].user_id,
+                title: recipes[index].title,
+                description: recipes[index].description,
+                image_url: recipes[index].image_url,
+                created_at: recipes[index].created_at,
+                users: recipes[index].users,
+                likes: updatedLikes
+            )
         }
     }
 }
