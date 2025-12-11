@@ -15,19 +15,23 @@ struct ContentView: View {
         NavigationStack {
             Group {
                 if let session = vm.session {
-                    VStack(spacing: 12) {
-                        HStack {
-                            Text(session.user.email ?? "")
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Button("Sign Out") {
-                                Task { await vm.signOut() }
-                            }
-                        }
-                        .padding(.horizontal)
-
+                    TabView {
                         FeedView(userId: session.user.id, userEmail: session.user.email ?? "user")
+                            .tabItem {
+                                Label("Feed", systemImage: "house.fill")
+                            }
+
+                        AddRecipeView(session: session)
+                            .tabItem {
+                                Label("Add", systemImage: "plus.circle")
+                            }
+
+                        ProfileView(session: session) {
+                            Task { await vm.signOut() }
+                        }
+                            .tabItem {
+                                Label("Profile", systemImage: "person.crop.circle")
+                            }
                     }
                 } else {
                     AuthView(vm: vm)
