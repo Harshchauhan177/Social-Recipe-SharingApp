@@ -1,3 +1,6 @@
 ## [![Repography logo](https://images.repography.com/logo.svg)](https://repography.com) / Top contributors
+[![Top contributors](https://images.repography.com/65644631/Harshchauhan177/Social-Recipe-SharingApp/top-contributors/NX5tRlhKxhy45nTge53crDzBSenJTDsCFoS3o5VDXMM/hqKxT8lmHdp3fbqcGdr8tyDUvwvoFfqBrLvpOmuAiIk_table.svg)](https://github.com/Harshchauhan177/Social-Recipe-SharingApp/graphs/contributors)
 
-[![Top contributors](https://images.repography.com/REPO_ID/Harshchauhan177/Social-Recipe-SharingApp/top-contributors.svg)](https://github.com/Harshchauhan177/Social-Recipe-SharingApp/graphs/contributors)
+<!--## [![Repography logo](https://images.repography.com/logo.svg)](https://repography.com) / Top contributors-->
+<!---->
+<!--[![Top contributors](https://images.repography.com/REPO_ID/Harshchauhan177/Social-Recipe-SharingApp/top-contributors.svg)](https://github.com/Harshchauhan177/Social-Recipe-SharingApp/graphs/contributors)-->
